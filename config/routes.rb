@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  get 'relationships/create'
+  get 'relationships/destroy'
   root to: 'toppages#index'
   
   get 'login', to: 'sessions#new'
@@ -7,8 +9,14 @@ Rails.application.routes.draw do
   
   get 'signup' , to: 'users#new'
   
-  resources :users, only:[:index, :show, :create]
-  
+  resources :users, only: [:index, :show, :create] do
+    member do
+      get :followings
+      get :followers
+    end
+  end
+
   resources :microposts, only:[:create, :destroy]
+  resources :relationships, only:[:create, :destroy]
   
 end
