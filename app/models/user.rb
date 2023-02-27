@@ -12,6 +12,9 @@ class User < ApplicationRecord
   has_many :reverses_of_relationship, class_name: 'Relationship', foreign_key: 'follow_id'
   has_many :followers, through: :reverses_of_relationship, source: :user
   
+  has_many :favorites
+  has_many :favoritings, through: :favorites, source: :micropost
+  
   def follow(other_user)
     unless self == other_user #自分自身でないとき
       self.relationships.find_or_create_by(follow_id: other_user.id) #find できればインスタンスを返す できなければcreateでリレーションを作成する
@@ -31,4 +34,16 @@ class User < ApplicationRecord
     Micropost.where(user_id: self.following_ids + [self.id])
   end
   
+  def addfavorite(targetpost)
+    self.favorites.find_or_create_by(micropost_id: targetpost.id)
+  end
+  
+  def removefavorite(targetpost)
+    favorite = self.favorites.find_by(micropost_id: targetpost.id)
+    favorite.destroy if favorite
+  end
+  
+  def favoriting?(targetpost)
+    self.favoritings.include?(targetpost)
+  end
 end
